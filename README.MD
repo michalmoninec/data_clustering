@@ -92,7 +92,13 @@ pip install .
 
 ## Usage
 
-Usage description.
+After installing the package, run:
+
+```bash
+cluster_data
+```
+
+In the current state, the script only print message to console, checking that the script binding in pyproject.toml is setup correctly and works as expected.
 
 ---
 

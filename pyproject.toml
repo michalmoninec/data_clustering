@@ -20,3 +20,6 @@ where = ["src"]
 
 [project.urls]
 repository = "https://github.com/michalmoninec/data_clustering"
+
+[project.scripts]
+cluster_data = 'clustering.main:script_binding_testing_func'
