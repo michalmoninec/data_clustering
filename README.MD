@@ -98,13 +98,18 @@ After installing the package, run:
 cluster_data
 ```
 
-In the current state, the script only print message to console, checking that the script binding in pyproject.toml is setup correctly and works as expected.
+In the current state, the script only print message to console, checking
+that the script binding in pyproject.toml is setup
+correctly and works as expected.
 
 ---
 
 ## Pre-commit Setup
 
 Project uses pre-commit hooks, that checks linting, formatting, typing, etc.
+Same type of validation is used as a GitHub action for `push` and `pull-request`
+events and settings are
+stated at [`push-pull.yaml`](.github/workflows/push-pull.yaml)
 Instructions for setting up pre-commit hooks are:
 
 ### **1. Install `pre-commit`:**
