@@ -2,17 +2,22 @@ import pytest
 import numpy as np
 
 from sklearn.cluster import KMeans as SklearnKMeans
+from sklearn.cluster import DBSCAN as SklearnDBSCAN
 from unittest.mock import Mock
 from typing import Type, Union
 
-from src.clustering.utils.algorithms import KMeans
+from src.clustering.utils.algorithms import KMeans, DBSCAN
 
-AlgoType = Union[Type[KMeans]]
-AlgoSklearnType = Union[Type[SklearnKMeans]]
+AlgoType = Union[Type[KMeans], Type[DBSCAN]]
+AlgoSklearnType = Union[Type[SklearnKMeans], Type[SklearnDBSCAN]]
 
 
 @pytest.mark.parametrize(
-    "sklearn_class, algo_class", [(SklearnKMeans, KMeans)]
+    "sklearn_class, algo_class",
+    [
+        (SklearnKMeans, KMeans),
+        (SklearnDBSCAN, DBSCAN),
+    ],
 )
 def test_algo_init(
     sklearn_class: AlgoSklearnType, algo_class: AlgoType
@@ -41,7 +46,11 @@ def test_algo_init(
 
 
 @pytest.mark.parametrize(
-    "sklearn_class, algo_class", [(SklearnKMeans, KMeans)]
+    "sklearn_class, algo_class",
+    [
+        (SklearnKMeans, KMeans),
+        (SklearnDBSCAN, DBSCAN),
+    ],
 )
 def test_algo_cluster_empty_data(
     sklearn_class: AlgoSklearnType, algo_class: AlgoType
@@ -61,14 +70,22 @@ def test_algo_cluster_empty_data(
 
     """
     mock_sklearn = Mock(spec=sklearn_class)
-    mock_sklearn.predict.return_value = np.array([1, 1, 1, 0, 0, 0])
+    if sklearn_class == SklearnDBSCAN:
+        mock_sklearn.fit_predict.return_value = np.array([1, 1, 1, 0, 0, 0])
+    else:
+        mock_sklearn.predict.return_value = np.array([1, 1, 1, 0, 0, 0])
+
     algo_instance = algo_class(mock_sklearn)
     clustered_data = algo_instance.cluster_data(np.array([]))
     assert clustered_data.size == 0
 
 
 @pytest.mark.parametrize(
-    "sklearn_class, algo_class", [(SklearnKMeans, KMeans)]
+    "sklearn_class, algo_class",
+    [
+        (SklearnKMeans, KMeans),
+        (SklearnDBSCAN, DBSCAN),
+    ],
 )
 def test_algo_cluster_valid_input_data(
     sklearn_class: AlgoSklearnType, algo_class: AlgoType, mock_data: np.ndarray
@@ -90,17 +107,28 @@ def test_algo_cluster_valid_input_data(
     """
     mock_predict_value = np.array([1, 1, 1, 0, 0, 0])
     mock_sklearn = Mock(spec=sklearn_class)
-    mock_sklearn.predict.return_value = mock_predict_value
+    if sklearn_class == SklearnDBSCAN:
+        mock_sklearn.fit_predict.return_value = mock_predict_value
+    else:
+        mock_sklearn.predict.return_value = mock_predict_value
 
     algo_instance = algo_class(mock_sklearn)
     algo_instance.cluster_data(mock_data)
 
     mock_sklearn.fit.assert_called_once_with(mock_data)
-    mock_sklearn.predict.asssert_called_once_with(mock_data)
+
+    if sklearn_class == SklearnDBSCAN:
+        mock_sklearn.fit_predict.asssert_called_once_with(mock_data)
+    else:
+        mock_sklearn.predict.asssert_called_once_with(mock_data)
 
 
 @pytest.mark.parametrize(
-    "sklearn_class, algo_class", [(SklearnKMeans, KMeans)]
+    "sklearn_class, algo_class",
+    [
+        (SklearnKMeans, KMeans),
+        (SklearnDBSCAN, DBSCAN),
+    ],
 )
 def test_algo_cluster_append_labels(
     sklearn_class: AlgoSklearnType, algo_class: AlgoType, mock_data: np.ndarray
@@ -121,7 +149,10 @@ def test_algo_cluster_append_labels(
     """
     mock_sklearn = Mock(spec=sklearn_class)
     mock_predict_value = np.array([1, 1, 1, 0, 0, 0])
-    mock_sklearn.predict.return_value = mock_predict_value
+    if sklearn_class == SklearnDBSCAN:
+        mock_sklearn.fit_predict.return_value = mock_predict_value
+    else:
+        mock_sklearn.predict.return_value = mock_predict_value
 
     expected_result = np.hstack((mock_data, mock_predict_value.reshape(-1, 1)))
 
