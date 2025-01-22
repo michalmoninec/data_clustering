@@ -3,6 +3,7 @@ import numpy as np
 from abc import ABC, abstractmethod
 from sklearn.cluster import KMeans as SklearnKMeans
 from sklearn.cluster import DBSCAN as SklearnDBSCAN
+from sklearn.cluster import MeanShift as SklearnMeanShift
 
 
 class BaseAlgo(ABC):
@@ -102,4 +103,45 @@ class DBSCAN(BaseAlgo):
 
         self.algo.fit(data)
         labels = self.algo.fit_predict(data)
+        return np.hstack((data, labels.reshape(-1, 1)))
+
+
+class MeanShift(BaseAlgo):
+    """Implementation of the BaseAlgo class using MeanShift from scikit-learn.
+
+    This class provides an implementation of the `BaseAlgo` interface
+    using the MeanShift algorithm from scikit-learn. It wraps the MeanShift
+    functionality to provide `fit` and `predict` methods that integrate
+    with the `BaseAlgo` structure.
+
+    Attributes:
+        algo (SklearnMeanShift): An instance of scikit-learn's MeanShift.
+    """
+
+    def __init__(self, algo: SklearnMeanShift) -> None:
+        """Initializes the MeanShift.
+
+        Args:
+            algo (SklearnMeanShift): An instance of scikit-learn's MeanShift.
+        """
+        self.algo = algo
+
+    def cluster_data(self, data: np.ndarray) -> np.ndarray:
+        """Cluster the provided data using the algorithm.
+
+        This method fits the algorithm to the provided data, creates labels
+        for the data and appends the cluster labels to the data. Empty data
+        is returned as is.
+
+        Args:
+            data (np.ndarray): The data to cluster.
+
+        Returns:
+            np.ndarray: The data with cluster labels appended.
+        """
+        if data.size == 0:
+            return data
+
+        self.algo.fit(data)
+        labels = self.algo.predict(data)
         return np.hstack((data, labels.reshape(-1, 1)))

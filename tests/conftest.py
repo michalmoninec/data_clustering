@@ -3,9 +3,9 @@ import numpy as np
 from pytest import fixture, FixtureRequest
 from typing import Union, Type
 
-from src.clustering.utils.algorithms import KMeans, DBSCAN
+from src.clustering.utils.algorithms import KMeans, DBSCAN, MeanShift
 
-AlgoType = Union[Type[KMeans], Type[DBSCAN]]
+AlgoType = Union[Type[KMeans], Type[DBSCAN], Type[MeanShift]]
 
 
 @fixture

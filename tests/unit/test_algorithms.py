@@ -3,13 +3,16 @@ import numpy as np
 
 from sklearn.cluster import KMeans as SklearnKMeans
 from sklearn.cluster import DBSCAN as SklearnDBSCAN
+from sklearn.cluster import MeanShift as SklearnMeanShift
 from unittest.mock import Mock
 from typing import Type, Union
 
-from src.clustering.utils.algorithms import KMeans, DBSCAN
+from src.clustering.utils.algorithms import KMeans, DBSCAN, MeanShift
 
-AlgoType = Union[Type[KMeans], Type[DBSCAN]]
-AlgoSklearnType = Union[Type[SklearnKMeans], Type[SklearnDBSCAN]]
+AlgoType = Union[Type[KMeans], Type[DBSCAN], Type[MeanShift]]
+AlgoSklearnType = Union[
+    Type[SklearnKMeans], Type[SklearnDBSCAN], Type[SklearnMeanShift]
+]
 
 
 @pytest.mark.parametrize(
@@ -17,6 +20,7 @@ AlgoSklearnType = Union[Type[SklearnKMeans], Type[SklearnDBSCAN]]
     [
         (SklearnKMeans, KMeans),
         (SklearnDBSCAN, DBSCAN),
+        (SklearnMeanShift, MeanShift),
     ],
 )
 def test_algo_init(
@@ -50,6 +54,7 @@ def test_algo_init(
     [
         (SklearnKMeans, KMeans),
         (SklearnDBSCAN, DBSCAN),
+        (SklearnMeanShift, MeanShift),
     ],
 )
 def test_algo_cluster_empty_data(
@@ -85,6 +90,7 @@ def test_algo_cluster_empty_data(
     [
         (SklearnKMeans, KMeans),
         (SklearnDBSCAN, DBSCAN),
+        (SklearnMeanShift, MeanShift),
     ],
 )
 def test_algo_cluster_valid_input_data(
@@ -128,6 +134,7 @@ def test_algo_cluster_valid_input_data(
     [
         (SklearnKMeans, KMeans),
         (SklearnDBSCAN, DBSCAN),
+        (SklearnMeanShift, MeanShift),
     ],
 )
 def test_algo_cluster_append_labels(
