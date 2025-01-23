@@ -29,3 +29,16 @@ def algo_class(request: FixtureRequest) -> AlgoType:
         AlgoType: The class object.
     """
     return request.param
+
+
+@fixture
+def attr_name(request: FixtureRequest) -> str:
+    """Fixture that returns the attribute name based on the provided parameter.
+
+    Args:
+        request (FixtureRequest): The request object.
+
+    Returns:
+        str: The attribute name.
+    """
+    return request.param

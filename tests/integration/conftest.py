@@ -1,11 +1,13 @@
-from pytest import fixture, FixtureRequest
+import os
+import tempfile
 
-from typing import Union, Type
+from pytest import fixture, FixtureRequest
+from typing import Generator, Union, Type
 from sklearn.cluster import KMeans as SklearnKMeans
 from sklearn.cluster import DBSCAN as SklearnDBSCAN
 from sklearn.cluster import MeanShift as SklearnMeanShift
 
-
+from src.clustering.utils.container import Container
 from src.clustering.utils.algorithms import BaseAlgo, KMeans, DBSCAN, MeanShift
 
 AlgoSklearnType = Union[
@@ -116,3 +118,115 @@ def mean_shift_instance(sklearn_mean_shift_instance) -> MeanShift:
         MeanShift: An instance of the MeanShift class.
     """
     return MeanShift(sklearn_mean_shift_instance)
+
+
+@fixture
+def kmeans_config() -> Generator[str, None, None]:
+    """Fixture that creates temporary yaml config file and
+    yields a file path with KMeans configuration settings.
+
+    yields:
+        str: The KMeans configuration settings.
+    """
+
+    config_data = """
+    algorithm_type: kmeans
+
+    kmeans:
+        n_clusters: 2
+        random_state: false
+        max_iter: 250
+        init: "k-means++"
+    """
+    with tempfile.NamedTemporaryFile(
+        mode="w+", suffix=".yaml", delete=False
+    ) as temp_file:
+        temp_file.write(config_data)
+        temp_file.close()
+        try:
+            yield temp_file.name
+        finally:
+            os.remove(temp_file.name)
+
+
+@fixture
+def dbscan_config() -> Generator[str, None, None]:
+    """Fixture that creates temporary yaml config file and
+    yields a file path with DBSCAN configuration settings.
+
+    Returns:
+        str: The DBSCAN configuration settings.
+    """
+
+    config_data = """
+    algorithm_type: dbscan
+
+    dbscan:
+        eps: 0.5
+        min_samples: 5
+        algorithm: auto
+        leaf_size: 30
+    """
+    with tempfile.NamedTemporaryFile(
+        mode="w+", suffix=".yaml", delete=False
+    ) as temp_file:
+        temp_file.write(config_data)
+        temp_file.close()
+        try:
+            yield temp_file.name
+        finally:
+            os.remove(temp_file.name)
+
+
+@fixture
+def mean_shift_config() -> Generator[str, None, None]:
+    """Fixture that creates temporary yaml config file and
+    yields a file path with MeanShift configuration settings.
+
+    Yields:
+        str: The MeanShift configuration settings.
+    """
+
+    config_data = """
+    algorithm_type: mean_shift
+
+    mean_shift:
+        bandwidth: 0.5
+        seeds: none
+        bin_seeding: false
+        min_bin_freq: 1
+        cluster_all: true
+        max_iter: 300
+    """
+    with tempfile.NamedTemporaryFile(
+        mode="w+", suffix=".yaml", delete=False
+    ) as temp_file:
+        temp_file.write(config_data)
+        temp_file.close()
+        try:
+            yield temp_file.name
+        finally:
+            os.remove(temp_file.name)
+
+
+@fixture
+def mock_yaml_config(request: FixtureRequest) -> Generator[str, None, None]:
+    """Fixture, that returns value of fixture for provided name."""
+    return request.getfixturevalue(request.param)
+
+
+@fixture
+def container(request: FixtureRequest) -> Container:
+    """Fixture that returns a Container object, with configuration based on
+    provided parameter.
+
+    Args:
+        request (FixtureRequest): The request object.
+
+    Returns:
+        Container: The Container object with the specified configuration.
+    """
+    config_file = request.getfixturevalue(request.param)
+    container = Container()
+    container.config.from_yaml(config_file)
+    return container
