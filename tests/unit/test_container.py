@@ -122,3 +122,25 @@ def test_algo_init(
     with container_sklearn_algo.override(mock_sklearn):
         algo_instance = container_algo()
         assert isinstance(algo_instance, algo_class)
+
+
+@pytest.mark.parametrize(
+    "algo_type, expected_type",
+    [("kmeans", KMeans), ("dbscan", DBSCAN), ("mean_shift", MeanShift)],
+)
+def test_algorithm_selector(algo_type: str, expected_type: AlgoType) -> None:
+    """Test that selected algorithm is selected correctly based on provided
+    algorithm type from configuration.
+
+    Args:
+        algo_type (str): Type of algorithm to override configuration.
+        expected_type (AlgoType): Expected type of selected algorithm instance.
+
+    Asserts:
+        Selected algorithm is initialized correctly and is an instance of the
+        correct class.
+    """
+    container = Container()
+    container.config.algorithm_type.override(algo_type)
+    algorithm = container.algorithm()
+    assert isinstance(algorithm, expected_type)

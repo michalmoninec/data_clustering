@@ -61,6 +61,9 @@ class Container(containers.DeclarativeContainer):
         `mean_shift` (providers.Singleton):
             Initializes MeanShift algorithm with provided instance of
             SklearnMeanShift.
+
+        `algorithm` (providers.Selector):
+            Select concrete clustering algorithm based on configuration.
     """
 
     config = providers.Configuration(yaml_files=["config.yaml"])
@@ -103,4 +106,11 @@ class Container(containers.DeclarativeContainer):
     mean_shift = providers.Singleton(
         MeanShift,
         algo=sklearn_mean_shift,
+    )
+
+    algorithm = providers.Selector(
+        config.algorithm_type,
+        kmeans=kmeans,
+        dbscan=dbscan,
+        mean_shift=mean_shift,
     )

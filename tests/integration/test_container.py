@@ -109,3 +109,33 @@ def test_algo_init(
 
     assert isinstance(algo_instance, algo_class)
     assert isinstance(algo_instance.algo, attr_class)
+
+
+@pytest.mark.parametrize(
+    "container, algo_class",
+    [
+        ("kmeans_config", KMeans),
+        ("dbscan_config", DBSCAN),
+        ("mean_shift_config", MeanShift),
+    ],
+    indirect=True,
+)
+def test_selected_algo(
+    container: Container,
+    algo_class: AlgoType,
+) -> None:
+    """Test that algorithm is selected correctly with the
+    dependency-injector container.
+
+    Args:
+        container (Container): The dependency injection container.
+        algo_class (AlgoType): The class type.
+
+    Asserts:
+        The algorithm is initialized without raising an error.
+        The algorithm is an instance of the expected class.
+
+    """
+    algorithm = container.algorithm()
+
+    assert isinstance(algorithm, algo_class)
