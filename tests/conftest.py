@@ -42,3 +42,16 @@ def attr_name(request: FixtureRequest) -> str:
         str: The attribute name.
     """
     return request.param
+
+
+@fixture
+def attr_class(request: FixtureRequest) -> Type[object]:
+    """Fixture that returns a specific class, based on provided parameter.
+
+    Args:
+        request (FixtureRequest): The request object.
+
+    Returns:
+        Type[object]: The class object.
+    """
+    return request.param

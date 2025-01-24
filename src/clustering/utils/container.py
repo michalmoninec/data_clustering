@@ -4,6 +4,8 @@ from sklearn.cluster import KMeans as SklearnKMeans
 from sklearn.cluster import DBSCAN as SklearnDBSCAN
 from sklearn.cluster import MeanShift as SklearnMeanShift
 
+from src.clustering.utils.algorithms import KMeans, DBSCAN, MeanShift
+
 
 class Container(containers.DeclarativeContainer):
     """
@@ -47,6 +49,18 @@ class Container(containers.DeclarativeContainer):
             consider it as a seed.
             - `cluster_all`: Whether to cluster all points or only the seeds.
             - `max_iter`: The maximum number of iterations for the algorithm.
+
+        `kmeans` (providers.Singleton):
+            Initializes KMeans algorithm with provided instance of
+            SKlearnKMeans
+
+        `dbscan` (providers.Singleton):
+            Initializes DBSCAN algorithm with provided instance of
+            SklearnDBSCAN.
+
+        `mean_shift` (providers.Singleton):
+            Initializes MeanShift algorithm with provided instance of
+            SklearnMeanShift.
     """
 
     config = providers.Configuration(yaml_files=["config.yaml"])
@@ -74,4 +88,19 @@ class Container(containers.DeclarativeContainer):
         min_bin_freq=config.mean_shift.min_bin_freq,
         cluster_all=config.mean_shift.cluster_all,
         max_iter=config.mean_shift.max_iter,
+    )
+
+    kmeans = providers.Singleton(
+        KMeans,
+        algo=sklearn_kmeans,
+    )
+
+    dbscan = providers.Singleton(
+        DBSCAN,
+        algo=sklearn_dbscan,
+    )
+
+    mean_shift = providers.Singleton(
+        MeanShift,
+        algo=sklearn_mean_shift,
     )

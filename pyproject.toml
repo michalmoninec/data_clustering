@@ -27,6 +27,7 @@ repository = "https://github.com/michalmoninec/data_clustering"
 
 [tool.mypy]
 explicit_package_bases = true
+disable_error_code = ["attr-defined"]
 
 [tool.black]
 line-length = 79
