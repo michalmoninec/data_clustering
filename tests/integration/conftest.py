@@ -1,11 +1,14 @@
 import os
 import tempfile
+import json
+import numpy as np
 
 from pytest import fixture, FixtureRequest
 from typing import Generator, Union, Type
 from sklearn.cluster import KMeans as SklearnKMeans
 from sklearn.cluster import DBSCAN as SklearnDBSCAN
 from sklearn.cluster import MeanShift as SklearnMeanShift
+from pathlib import Path
 
 from src.clustering.utils.container import Container
 from src.clustering.utils.algorithms import BaseAlgo, KMeans, DBSCAN, MeanShift
@@ -230,3 +233,75 @@ def container(request: FixtureRequest) -> Container:
     container = Container()
     container.config.from_yaml(config_file)
     return container
+
+
+@fixture
+def file_path(request: FixtureRequest) -> Generator[str, None, None]:
+    """Fixture, that returns value of fixture for provided name with path to
+    corresponding file format.
+
+    Args:
+        request (FixtureRequest): The request object.
+
+    Yields:
+        str: Path to temporary numpy file.
+    """
+    return request.getfixturevalue(request.param)
+
+
+@fixture
+def numpy_path(mock_data: np.ndarray) -> Generator[Path, None, None]:
+    """Fixture, that creates temporary numpy file with mock data and yield
+    path to that file.
+
+    Yields:
+        str: Path to temporary numpy file.
+    """
+    with tempfile.NamedTemporaryFile(
+        mode="w+", suffix=".npy", delete=False
+    ) as temp_file:
+        np.save(temp_file.name, mock_data)
+        temp_file.close()
+        try:
+            yield Path(temp_file.name)
+        finally:
+            os.remove(temp_file.name)
+
+
+@fixture
+def json_path(mock_data: np.ndarray) -> Generator[Path, None, None]:
+    """Fixture, that creates temporary json file with mock data and yield
+    path to that file.
+
+    Yields:
+        str: Path to temporary json file.
+    """
+    with tempfile.NamedTemporaryFile(
+        mode="w+", suffix=".json", delete=False
+    ) as temp_file:
+        json_data = json.dumps(mock_data.tolist())
+        temp_file.write(json_data)
+        temp_file.close()
+        try:
+            yield Path(temp_file.name)
+        finally:
+            os.remove(temp_file.name)
+
+
+@fixture
+def text_path() -> Generator[Path, None, None]:
+    """Fixture, that creates temporary text file with mock data and yield
+    path to that file.
+
+    Yields:
+        str: Path to temporary text file.
+    """
+    with tempfile.NamedTemporaryFile(
+        mode="w+", suffix=".txt", delete=False
+    ) as temp_file:
+        temp_file.write("abcd")
+        temp_file.close()
+        try:
+            yield Path(temp_file.name)
+        finally:
+            os.remove(temp_file.name)
