@@ -406,3 +406,39 @@ def text_path() -> Generator[Path, None, None]:
             yield Path(temp_file.name)
         finally:
             os.remove(temp_file.name)
+
+
+@fixture
+def mock_numpy_data(
+    mock_data: np.ndarray,
+) -> Generator[np.ndarray, None, None]:
+    """Fixture, that yields mock_data and after test run, removes created file.
+
+    Args:
+        mock_data (np.ndarray): Mock np.ndarray data.
+
+    Yields:
+        mock_data (np.ndarray): Mock np.ndarraya data.
+    """
+    try:
+        yield mock_data
+    finally:
+        os.remove("clustered_data.npy")
+
+
+@fixture
+def mock_json_data(
+    mock_data: np.ndarray,
+) -> Generator[np.ndarray, None, None]:
+    """Fixture, that yields mock_data and after test run, removes created file.
+
+    Args:
+        mock_data (np.ndarray): Mock np.ndarray data.
+
+    Yields:
+        mock_data (np.ndarray): Mock np.ndarraya data.
+    """
+    try:
+        yield mock_data
+    finally:
+        os.remove("clustered_data.json")
