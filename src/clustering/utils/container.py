@@ -14,6 +14,10 @@ from src.clustering.utils.data_model import (
     DBSCANModel,
     MeanShiftModel,
 )
+from src.clustering.utils.output_handler import (
+    NumpyOutputHandler,
+    JSONOutputHandler,
+)
 
 
 class Container(containers.DeclarativeContainer):
@@ -84,6 +88,9 @@ class Container(containers.DeclarativeContainer):
         `algo_specific_validator` (providers.Singleton):
             Initializes InputHandler with specific algorithm model, that
             validates the whole yaml file.
+
+        `output_handler` (providers.Selector):
+            Select concrete OutputHandler based on configuration.
     """
 
     config = providers.Configuration(yaml_files=["config.yaml"])
@@ -152,4 +159,10 @@ class Container(containers.DeclarativeContainer):
             dbscan=providers.Object(DBSCANModel),
             mean_shift=providers.Object(MeanShiftModel),
         ),
+    )
+
+    output_handler = providers.Selector(
+        config.output_data_format,
+        numpy=providers.Singleton(NumpyOutputHandler),
+        json=providers.Singleton(JSONOutputHandler),
     )

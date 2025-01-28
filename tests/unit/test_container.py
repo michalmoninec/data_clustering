@@ -16,12 +16,17 @@ from src.clustering.utils.data_model import (
     MeanShiftModel,
     ConfigValidator,
 )
+from src.clustering.utils.output_handler import (
+    NumpyOutputHandler,
+    JSONOutputHandler,
+)
 
 AlgoSklearnType = Union[
     Type[SklearnKMeans], Type[SklearnDBSCAN], Type[SklearnMeanShift]
 ]
 AlgoType = Union[Type[KMeans], Type[DBSCAN], Type[MeanShift]]
 ModelType = Union[Type[KMeansModel], Type[DBSCANModel], Type[MeanShiftModel]]
+HandlerType = Union[Type[NumpyOutputHandler], Type[JSONOutputHandler]]
 
 
 @pytest.mark.parametrize(
@@ -228,3 +233,26 @@ def test_algo_specific_validator(
     algo_specific_validator = container.algo_specific_validator()
 
     assert isinstance(algo_specific_validator, ConfigValidator)
+
+
+@pytest.mark.parametrize(
+    "handler_class, output_format",
+    [(NumpyOutputHandler, "numpy"), (JSONOutputHandler, "json")],
+)
+def test_output_handler(handler_class: HandlerType, output_format: str):
+    """Test output_handler instance initialization based on provided config
+    and selected output format.
+
+    Args:
+        handler_class (HandlerType): Concrete handler class.
+        output_format (str): Output path format.
+
+    Asserts:
+        The output_handler is initialized without raising an error.
+        The output_handler is an instance of handler_class.
+    """
+    container = Container()
+    container.config.output_data_format.override(output_format)
+    output_handler = container.output_handler()
+
+    assert isinstance(output_handler, handler_class)
