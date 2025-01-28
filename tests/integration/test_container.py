@@ -4,9 +4,11 @@ from typing import Type, Union
 from sklearn.cluster import KMeans as SklearnKMeans
 from sklearn.cluster import DBSCAN as SklearnDBSCAN
 from sklearn.cluster import MeanShift as SklearnMeanShift
+from pathlib import Path
 
 from src.clustering.utils.container import Container
 from src.clustering.utils.algorithms import KMeans, DBSCAN, MeanShift
+from src.clustering.utils.input_handler import InputHandler
 
 AlgoType = Union[Type[KMeans], Type[DBSCAN], Type[MeanShift]]
 AlgoSklearnType = Union[
@@ -139,3 +141,30 @@ def test_selected_algo(
     algorithm = container.algorithm()
 
     assert isinstance(algorithm, algo_class)
+
+
+@pytest.mark.parametrize(
+    "file_path, mock_yaml_config",
+    [("numpy_path", "kmeans_config")],
+    indirect=True,
+)
+def test_input_handler(file_path: str, mock_yaml_config: str) -> None:
+    """Test input_handler instance initialization.
+
+    Args:
+        file_path (str): Path to input data file.
+        mock_yaml_config (str): Path to mocked yaml config.
+
+    Assert:
+        The input_handler is initialized without raising an error.
+        The input_handler is an instance of InputHandler.
+        The path attribute of input_handler is an instance of Path.
+
+    """
+    container = Container()
+    container.config.from_yaml(mock_yaml_config)
+    container.config.input_data_path.override(file_path)
+
+    input_handler = container.input_handler()
+    assert isinstance(input_handler, InputHandler)
+    assert isinstance(input_handler.path, Path)

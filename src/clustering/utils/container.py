@@ -1,10 +1,12 @@
 from dependency_injector import containers, providers
+from pathlib import Path
 
 from sklearn.cluster import KMeans as SklearnKMeans
 from sklearn.cluster import DBSCAN as SklearnDBSCAN
 from sklearn.cluster import MeanShift as SklearnMeanShift
 
 from src.clustering.utils.algorithms import KMeans, DBSCAN, MeanShift
+from src.clustering.utils.input_handler import InputHandler
 
 
 class Container(containers.DeclarativeContainer):
@@ -64,6 +66,9 @@ class Container(containers.DeclarativeContainer):
 
         `algorithm` (providers.Selector):
             Select concrete clustering algorithm based on configuration.
+
+        `input_handler` (providers.Singleton):
+            Initializes InputHandler with path based on configuration.
     """
 
     config = providers.Configuration(yaml_files=["config.yaml"])
@@ -113,4 +118,9 @@ class Container(containers.DeclarativeContainer):
         kmeans=kmeans,
         dbscan=dbscan,
         mean_shift=mean_shift,
+    )
+
+    input_handler = providers.Singleton(
+        InputHandler,
+        path=providers.Singleton(Path, config.input_data_path),
     )

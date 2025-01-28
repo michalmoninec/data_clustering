@@ -5,9 +5,11 @@ from sklearn.cluster import KMeans as SklearnKMeans
 from sklearn.cluster import DBSCAN as SklearnDBSCAN
 from sklearn.cluster import MeanShift as SklearnMeanShift
 from unittest.mock import Mock
+from pathlib import Path
 
 from src.clustering.utils.container import Container
 from src.clustering.utils.algorithms import KMeans, DBSCAN, MeanShift
+from src.clustering.utils.input_handler import InputHandler
 
 AlgoSklearnType = Union[
     Type[SklearnKMeans], Type[SklearnDBSCAN], Type[SklearnMeanShift]
@@ -144,3 +146,22 @@ def test_algorithm_selector(algo_type: str, expected_type: AlgoType) -> None:
     container.config.algorithm_type.override(algo_type)
     algorithm = container.algorithm()
     assert isinstance(algorithm, expected_type)
+
+
+def test_input_handler() -> None:
+    """Test input_handled instance initialization.
+
+    Assert:
+        The input_handler is initialized without raising an error.
+        The input_handler is an instance of InputHandler.
+        The path attribute of input_handler is an instance of Path.
+
+    """
+    mock_path = "test.txt"
+
+    container = Container()
+    container.config.input_data_path.override(mock_path)
+
+    input_handler = container.input_handler()
+    assert isinstance(input_handler, InputHandler)
+    assert isinstance(input_handler.path, Path)
