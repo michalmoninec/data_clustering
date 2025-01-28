@@ -134,6 +134,8 @@ def kmeans_config() -> Generator[str, None, None]:
 
     config_data = """
     algorithm_type: kmeans
+    input_data_path: "input_data.npy"
+    output_data_format: numpy
 
     kmeans:
         n_clusters: 2
@@ -163,6 +165,8 @@ def dbscan_config() -> Generator[str, None, None]:
 
     config_data = """
     algorithm_type: dbscan
+    input_data_path: "input_data.npy"
+    output_data_format: numpy
 
     dbscan:
         eps: 0.5
@@ -192,6 +196,8 @@ def mean_shift_config() -> Generator[str, None, None]:
 
     config_data = """
     algorithm_type: mean_shift
+    input_data_path: "input_data.npy"
+    output_data_format: numpy
 
     mean_shift:
         bandwidth: 0.5
@@ -200,6 +206,101 @@ def mean_shift_config() -> Generator[str, None, None]:
         min_bin_freq: 1
         cluster_all: true
         max_iter: 300
+    """
+    with tempfile.NamedTemporaryFile(
+        mode="w+", suffix=".yaml", delete=False
+    ) as temp_file:
+        temp_file.write(config_data)
+        temp_file.close()
+        try:
+            yield temp_file.name
+        finally:
+            os.remove(temp_file.name)
+
+
+@fixture
+def invalid_kmeans_config() -> Generator[str, None, None]:
+    """Fixture that creates temporary yaml config file and
+    yields a file path with KMeans invalid configuration settings.
+
+    yields:
+        str: The invalid KMeans configuration settings.
+    """
+
+    config_data = """
+    algorithm_type: kmeans
+    input_data_path: "input_data.npy"
+    output_data_format: numpy
+
+    kmeans:
+        n_clusters: False
+        random_state: false
+        max_iter: 250
+        init: "k-means++"
+    """
+    with tempfile.NamedTemporaryFile(
+        mode="w+", suffix=".yaml", delete=False
+    ) as temp_file:
+        temp_file.write(config_data)
+        temp_file.close()
+        try:
+            yield temp_file.name
+        finally:
+            os.remove(temp_file.name)
+
+
+@fixture
+def invalid_mean_shift_config() -> Generator[str, None, None]:
+    """Fixture that creates temporary yaml config file and
+    yields a file path with invalid MeanShift configuration settings.
+
+    Yields:
+        str: The invalid MeanShift configuration settings.
+    """
+
+    config_data = """
+    algorithm_type: mean_shift
+    input_data_path: "input_data.npy"
+    output_data_format: numpy
+
+    mean_shift:
+        bandwidth: False
+        seeds: none
+        bin_seeding: false
+        min_bin_freq: 1
+        cluster_all: true
+        max_iter: 300
+    """
+    with tempfile.NamedTemporaryFile(
+        mode="w+", suffix=".yaml", delete=False
+    ) as temp_file:
+        temp_file.write(config_data)
+        temp_file.close()
+        try:
+            yield temp_file.name
+        finally:
+            os.remove(temp_file.name)
+
+
+@fixture
+def invalid_dbscan_config() -> Generator[str, None, None]:
+    """Fixture that creates temporary yaml config file and
+    yields a file path with invalid DBSCAN configuration settings.
+
+    Returns:
+        str: The invalid DBSCAN configuration settings.
+    """
+
+    config_data = """
+    algorithm_type: dbscan
+    input_data_path: "input_data.npy"
+    output_data_format: numpy
+
+    dbscan:
+        eps: False
+        min_samples: 5
+        algorithm: auto
+        leaf_size: 30
     """
     with tempfile.NamedTemporaryFile(
         mode="w+", suffix=".yaml", delete=False
