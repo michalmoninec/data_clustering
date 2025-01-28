@@ -9,6 +9,7 @@ from pathlib import Path
 from src.clustering.utils.container import Container
 from src.clustering.utils.algorithms import KMeans, DBSCAN, MeanShift
 from src.clustering.utils.input_handler import InputHandler
+from src.clustering.utils.data_model import ConfigValidator
 
 AlgoType = Union[Type[KMeans], Type[DBSCAN], Type[MeanShift]]
 AlgoSklearnType = Union[
@@ -168,3 +169,49 @@ def test_input_handler(file_path: str, mock_yaml_config: str) -> None:
     input_handler = container.input_handler()
     assert isinstance(input_handler, InputHandler)
     assert isinstance(input_handler.path, Path)
+
+
+@pytest.mark.parametrize(
+    "mock_yaml_config",
+    ["kmeans_config", "dbscan_config", "mean_shift_config"],
+    indirect=True,
+)
+def test_general_validator(mock_yaml_config: str) -> None:
+    """Test general_validator instance initialization.
+
+    Args:
+        mock_yaml_config (str): Path to yaml config file.
+
+    Asserts:
+        The general_validator is initialized without raising an error.
+        The general_validator is an instance of ConfigValidator.
+    """
+
+    container = Container()
+    container.config.from_yaml(mock_yaml_config)
+    general_validator = container.general_validator()
+
+    assert isinstance(general_validator, ConfigValidator)
+
+
+@pytest.mark.parametrize(
+    "mock_yaml_config",
+    ["kmeans_config", "dbscan_config", "mean_shift_config"],
+    indirect=True,
+)
+def test_algo_specific_validator(mock_yaml_config: str) -> None:
+    """Test general_validator instance initialization.
+
+    Args:
+        mock_yaml_config (str): Path to yaml config file.
+
+    Asserts:
+        The general_validator is initialized without raising an error.
+        The general_validator is an instance of ConfigValidator.
+    """
+
+    container = Container()
+    container.config.from_yaml(mock_yaml_config)
+    algo_specific_validator = container.algo_specific_validator()
+
+    assert isinstance(algo_specific_validator, ConfigValidator)

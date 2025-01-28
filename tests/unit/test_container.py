@@ -10,11 +10,18 @@ from pathlib import Path
 from src.clustering.utils.container import Container
 from src.clustering.utils.algorithms import KMeans, DBSCAN, MeanShift
 from src.clustering.utils.input_handler import InputHandler
+from src.clustering.utils.data_model import (
+    KMeansModel,
+    DBSCANModel,
+    MeanShiftModel,
+    ConfigValidator,
+)
 
 AlgoSklearnType = Union[
     Type[SklearnKMeans], Type[SklearnDBSCAN], Type[SklearnMeanShift]
 ]
 AlgoType = Union[Type[KMeans], Type[DBSCAN], Type[MeanShift]]
+ModelType = Union[Type[KMeansModel], Type[DBSCANModel], Type[MeanShiftModel]]
 
 
 @pytest.mark.parametrize(
@@ -165,3 +172,59 @@ def test_input_handler() -> None:
     input_handler = container.input_handler()
     assert isinstance(input_handler, InputHandler)
     assert isinstance(input_handler.path, Path)
+
+
+@pytest.mark.parametrize(
+    "mock_dict_config",
+    [
+        "sklearn_kmeans_dict_config",
+        "sklearn_dbscan_dict_config",
+        "sklearn_mean_shift_dict_config",
+    ],
+    indirect=True,
+)
+def test_general_validator(mock_dict_config: dict) -> None:
+    """Test general_validator instance initialization.
+
+    Args:
+        mock_dict_config (dict): Mock dict configuration.
+
+    Asserts:
+        The general_validator is initialized without raising an error.
+        The general_validator is an instance of ConfigValidator.
+    """
+    container = Container()
+    container.config.from_dict(mock_dict_config)
+    general_validator = container.general_validator()
+
+    assert isinstance(general_validator, ConfigValidator)
+
+
+@pytest.mark.parametrize(
+    "mock_dict_config, model_class",
+    [
+        ("sklearn_kmeans_dict_config", KMeansModel),
+        ("sklearn_dbscan_dict_config", DBSCANModel),
+        ("sklearn_mean_shift_dict_config", MeanShiftModel),
+    ],
+    indirect=True,
+)
+def test_algo_specific_validator(
+    mock_dict_config: dict, model_class: ModelType
+) -> None:
+    """Test algo_specific_validator instance initialization.
+
+    Args:
+        mock_dict_config (dict): Mock dict configuration.
+        model_class (ModelType): Pydantic schema model.
+
+    Asserts:
+        The algo_specific_validator is initialized without raising an error.
+        The algo_specific_validator is an instance of ConfigValidator.
+    """
+    container = Container()
+    container.config.from_dict(mock_dict_config)
+
+    algo_specific_validator = container.algo_specific_validator()
+
+    assert isinstance(algo_specific_validator, ConfigValidator)

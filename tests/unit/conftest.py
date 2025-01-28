@@ -1,4 +1,13 @@
 from pytest import fixture, FixtureRequest
+from typing import Union, Type
+
+from src.clustering.utils.data_model import (
+    KMeansModel,
+    DBSCANModel,
+    MeanShiftModel,
+)
+
+ModelType = Union[Type[KMeansModel], Type[DBSCANModel], Type[MeanShiftModel]]
 
 
 @fixture
@@ -58,3 +67,9 @@ def sklearn_mean_shift_dict_config() -> dict:
 def mock_dict_config(request: FixtureRequest) -> dict:
     """Fixture, that returns value of fixture for provided name."""
     return request.getfixturevalue(request.param)
+
+
+@fixture
+def model_class(request: FixtureRequest) -> ModelType:
+    """Fixture, that returns request.param model type value."""
+    return request.param

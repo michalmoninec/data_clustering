@@ -7,6 +7,13 @@ from sklearn.cluster import MeanShift as SklearnMeanShift
 
 from src.clustering.utils.algorithms import KMeans, DBSCAN, MeanShift
 from src.clustering.utils.input_handler import InputHandler
+from src.clustering.utils.data_model import (
+    ConfigModel,
+    ConfigValidator,
+    KMeansModel,
+    DBSCANModel,
+    MeanShiftModel,
+)
 
 
 class Container(containers.DeclarativeContainer):
@@ -69,6 +76,14 @@ class Container(containers.DeclarativeContainer):
 
         `input_handler` (providers.Singleton):
             Initializes InputHandler with path based on configuration.
+
+        `general_validator` (providers.Singleton):
+            Initializes InputHandler with ConfigModel, that validates the
+            general part of yaml file.
+
+        `algo_specific_validator` (providers.Singleton):
+            Initializes InputHandler with specific algorithm model, that
+            validates the whole yaml file.
     """
 
     config = providers.Configuration(yaml_files=["config.yaml"])
@@ -123,4 +138,18 @@ class Container(containers.DeclarativeContainer):
     input_handler = providers.Singleton(
         InputHandler,
         path=providers.Singleton(Path, config.input_data_path),
+    )
+
+    general_validator = providers.Singleton(
+        ConfigValidator, model=providers.Object(ConfigModel)
+    )
+
+    algo_specific_validator = providers.Singleton(
+        ConfigValidator,
+        model=providers.Selector(
+            config.algorithm_type,
+            kmeans=providers.Object(KMeansModel),
+            dbscan=providers.Object(DBSCANModel),
+            mean_shift=providers.Object(MeanShiftModel),
+        ),
     )
