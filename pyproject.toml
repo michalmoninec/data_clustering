@@ -13,6 +13,10 @@ license = { file = "LICENSE" }
 dependencies = [
     "pre-commit",
     "pytest>=8.2.1",
+    "numpy>=2.2.2",
+    "scikit-learn>=1.6.1",
+    "dependency-injector>=4.45.0",
+    "pydantic>=2.10.6",
 ]
 requires-python = ">=3.12"
 
@@ -22,5 +26,14 @@ where = ["src"]
 [project.urls]
 repository = "https://github.com/michalmoninec/data_clustering"
 
-[project.scripts]
-cluster_data = 'clustering.main:script_binding_testing_func'
+[tool.mypy]
+explicit_package_bases = true
+disable_error_code = ["attr-defined"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ['yaml']
+ignore_missing_imports = true
+
+[tool.black]
+line-length = 79
